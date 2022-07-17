@@ -7,6 +7,7 @@ import Login from "./Pages/Login";
 import Profile from "./Pages/Profile";
 import "./main.css";
 import Context from "./Pages/Context";
+import Register from "./Pages/Register";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/admin" element={<AdminPage />}></Route>
         <Route path="/login" element={<Login />}></Route>
         <Route path="/profile" element={<Profile />}></Route>
+        <Route path="/register" element={<Register />}></Route>
       </Routes>
       </Context>
     </BrowserRouter>
