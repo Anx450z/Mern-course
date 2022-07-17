@@ -21,6 +21,7 @@
 
 * npx create-react-app --template typescript client
 * yarn add axios react-router-dom
+* yarn add @types/react-router-dom -D
 
 ---
 
