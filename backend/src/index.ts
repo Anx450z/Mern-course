@@ -102,12 +102,9 @@ app.post("/register", async (req, res) => {
   });
 });
 
-app.post(
-  "/login",
-  passport.authenticate("local", (req, res) => {
-    res.send("Successfully Authenticated");
-  })
-);
+app.post("/login", passport.authenticate("local"), (req, res) => {
+  res.send("success")
+});
 
 app.get("/user", (req, res) => {
   res.send(req.user);
