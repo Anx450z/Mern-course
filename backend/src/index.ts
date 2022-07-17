@@ -1,5 +1,5 @@
 import mongoose, { Error } from "mongoose";
-import express from "express";
+import express, { Request, Response } from "express";
 import cors from "cors";
 import passport from "passport";
 import passportLocal from "passport-local";
@@ -7,6 +7,7 @@ import cookieParser from "cookie-parser";
 import session from "express-session";
 import bycrypt from "bcryptjs";
 import dotnet from "dotenv";
+import User from "./User";
 
 mongoose.connect(
   "mongodb+srv://ankur:ankur@cluster0.pwl0a.mongodb.net/?retryWrites=true&w=majority",
@@ -36,3 +37,15 @@ app.use(
 app.use(cookieParser());
 app.use(passport.initialize());
 app.use(passport.session());
+
+// Routes
+app.post("/register", async (req: Request, res: Response) => {
+  // username, password
+  const hashedPassword = await bycrypt.hash(req.body.password, 10);
+  const newUser = new User({
+    username: req.body.username,
+    password: hashedPassword,
+  });
+  await newUser.save();
+  res.send("Success")
+});
