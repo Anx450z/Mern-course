@@ -44,7 +44,7 @@ app.use(passport.session());
 //Passport
 passport.use(
   new LocalStrategy((username, password, done) => {
-    User.findOne({ username: username }, (err : any, user: any) => {
+    User.findOne({ username: username }, (err: any, user: any) => {
       if (err) throw err;
       if (!user) return done(null, false);
       bycrypt.compare(password, user.password, (err, result) => {
@@ -64,7 +64,7 @@ passport.serializeUser((user: any, cb) => {
 });
 
 passport.deserializeUser((id: string, cb) => {
-  User.findOne({ _id: id }, (err : any, user: any) => {
+  User.findOne({ _id: id }, (err: any, user: any) => {
     const userInformation = {
       username: user.username,
       isAdmin: user.isAdmin,
@@ -100,6 +100,17 @@ app.post("/register", async (req: Request, res: Response) => {
       res.send("Success");
     }
   });
+});
+
+app.post(
+  "/login",
+  passport.authenticate("local", (req, res) => {
+    res.send("Successfully Authenticated");
+  })
+);
+
+app.get("/user", (req, res) => {
+  res.send(req.user);
 });
 
 app.listen(4000, () => {
