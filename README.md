@@ -8,7 +8,7 @@
  ---
 
  ## Commands
-
+ * yarn start
 ### Backend
 
 * npm init -y

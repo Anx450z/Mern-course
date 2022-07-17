@@ -49,3 +49,7 @@ app.post("/register", async (req: Request, res: Response) => {
   await newUser.save();
   res.send("Success")
 });
+
+app.listen(4000, () => {
+  console.log("Server started");
+})
