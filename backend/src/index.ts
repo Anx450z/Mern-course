@@ -1,4 +1,4 @@
-import mongoose, { Error } from "mongoose";
+import mongoose from "mongoose";
 import express, { Request, Response } from "express";
 import cors from "cors";
 import passport from "passport";
@@ -8,7 +8,7 @@ import session from "express-session";
 import bycrypt from "bcryptjs";
 import dotnet from "dotenv";
 import User from "./User";
-import { UserInterface } from "./Interface/UserInterface";
+import { UserInterface, DatabaseUserInterface } from "./Interface/UserInterface";
 
 const LocalStrategy = passportLocal.Strategy;
 
@@ -74,7 +74,7 @@ passport.deserializeUser((id: string, cb) => {
 });
 
 // Routes
-app.post("/register", async (req: Request, res: Response) => {
+app.post("/register", async (req, res) => {
   // username, password validation
   const { username, password } = req?.body;
   if (
@@ -87,7 +87,7 @@ app.post("/register", async (req: Request, res: Response) => {
     return;
   }
   // Check user already exist
-  User.findOne({ username }, async (err: Error, doc: UserInterface) => {
+  User.findOne({ username }, async (err: any, doc: DatabaseUserInterface) => {
     if (err) throw err;
     if (doc) res.send("user Already Exists");
     if (!doc) {
