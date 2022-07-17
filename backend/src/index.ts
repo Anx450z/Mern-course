@@ -40,16 +40,33 @@ app.use(passport.session());
 
 // Routes
 app.post("/register", async (req: Request, res: Response) => {
-  // username, password
-  const hashedPassword = await bycrypt.hash(req.body.password, 10);
-  const newUser = new User({
-    username: req.body.username,
-    password: hashedPassword,
+  // username, password validation
+  const { username, password } = req?.body;
+  if (
+    !username ||
+    !password ||
+    typeof username !== "string" ||
+    typeof password !== "string"
+  ) {
+    res.send("Improper Values");
+    return;
+  }
+  // Check user already exist
+  User.findOne({ username }, async (err: Error, doc: Document) => {
+    if (err) throw err;
+    if (doc) res.send("user Already Exists");
+    if (!doc) {
+      const hashedPassword = await bycrypt.hash(req.body.password, 10);
+      const newUser = new User({
+        username: req.body.username,
+        password: hashedPassword,
+      });
+      await newUser.save();
+      res.send("Success");
+    }
   });
-  await newUser.save();
-  res.send("Success")
 });
 
 app.listen(4000, () => {
   console.log("Server started");
-})
+});
