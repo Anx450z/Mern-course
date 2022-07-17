@@ -23,3 +23,21 @@
 
 ---
 
+## Some exceptions 
+
+* at 12:32 in video
+
+  useCreateIndex: true,
+  <br>
+  useNewUrlParser: true,
+  <br>
+  useUnifiedTopology: true
+
+  `these are depricated`
+
+* use these instead
+  autoIndex: true
+
+  `remove others`
+
+* Source : `https://www.mongodb.com/community/forums/t/option-usecreateindex-is-not-supported/123048`
