@@ -21,3 +21,18 @@ mongoose.connect(
     console.log("Connected to DB");
   }
 );
+
+// Middleware
+const app = express();
+app.use(express.json());
+app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+app.use(
+  session({
+    secret: "ankur",
+    resave: true,
+    saveUninitialized: true,
+  })
+);
+app.use(cookieParser());
+app.use(passport.initialize());
+app.use(passport.session());
