@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import express, { Request, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import passport from "passport";
 import passportLocal from "passport-local";
@@ -105,6 +105,25 @@ app.post("/register", async (req, res) => {
   });
 });
 
+// Middleware for route protection
+function isAdminMiddleware(req: Request, res: Response, next: NextFunction) {
+  const { user }: any = req;
+  if (user) {
+    User.findOne(
+      { username: user.username },
+      (err: Error, doc: UserInterface) => {
+        if (err) {
+          return next(err);
+        }
+        if (doc?.isAdmin) {
+          next();
+        }
+      }
+    );
+  }
+  res.send("You don't have right access privileges");
+}
+
 app.post("/login", passport.authenticate("local"), (req, res) => {
   res.send("login success");
 });
@@ -122,7 +141,7 @@ app.get("/logout", function (req, res, next) {
   });
 });
 
-app.post("/delete", (req, res, next) => {
+app.post("/delete", isAdminMiddleware, (req, res, next) => {
   const { id } = req.body;
   User.findByIdAndDelete(id, (err: Error) => {
     if (err) {
@@ -132,7 +151,7 @@ app.post("/delete", (req, res, next) => {
   });
 });
 
-app.get("/users", (req, res, next) => {
+app.get("/users", isAdminMiddleware, (req, res, next) => {
   User.find({}, (err: Error, data: DatabaseUserInterface[]) => {
     if (err) {
       return next(err);
