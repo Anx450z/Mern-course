@@ -43,3 +43,7 @@
   `remove others`
 
 * Source : `https://www.mongodb.com/community/forums/t/option-usecreateindex-is-not-supported/123048`
+
+## Misc Fixes
+
+* Sometimes IP address changes and we can;t connect to mongoose DB, in that case we need to add new IP address in Network Access in Mongoose.

@@ -89,8 +89,8 @@ app.post("/register", async (req, res) => {
     res.send("Improper Values");
     return;
   }
-  // Check user already exist
-  User.findOne({ username }, async (err: any, doc: DatabaseUserInterface) => {
+  // Check user already exist else success
+  User.findOne({ username }, async (err: Error, doc: DatabaseUserInterface) => {
     if (err) throw err;
     if (doc) res.send("user Already Exists");
     if (!doc) {
@@ -122,14 +122,24 @@ app.get("/logout", function (req, res, next) {
   });
 });
 
-app.get("/users",  (req, res, next) => {
-   User.find({}, (err : Error, data : DatabaseUserInterface[]) => {
+app.post("/delete", (req, res, next) => {
+  const { id } = req.body;
+  User.findByIdAndDelete(id, (err: Error) => {
     if (err) {
       return next(err);
     }
-    res.send(data)
-  })
-})
+    res.send("success");
+  });
+});
+
+app.get("/users", (req, res, next) => {
+  User.find({}, (err: Error, data: DatabaseUserInterface[]) => {
+    if (err) {
+      return next(err);
+    }
+    res.send(data);
+  });
+});
 
 app.listen(4000, () => {
   console.log("Server started");
