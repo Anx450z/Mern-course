@@ -122,6 +122,15 @@ app.get("/logout", function (req, res, next) {
   });
 });
 
+app.get("/users",  (req, res, next) => {
+   User.find({}, (err : Error, data : DatabaseUserInterface[]) => {
+    if (err) {
+      return next(err);
+    }
+    res.send(data)
+  })
+})
+
 app.listen(4000, () => {
   console.log("Server started");
 });
