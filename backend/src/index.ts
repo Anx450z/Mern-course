@@ -8,7 +8,10 @@ import session from "express-session";
 import bycrypt from "bcryptjs";
 import dotnet from "dotenv";
 import User from "./User";
-import { UserInterface, DatabaseUserInterface } from "./Interface/UserInterface";
+import {
+  UserInterface,
+  DatabaseUserInterface,
+} from "./Interface/UserInterface";
 
 const LocalStrategy = passportLocal.Strategy;
 
@@ -97,17 +100,26 @@ app.post("/register", async (req, res) => {
         password: hashedPassword,
       });
       await newUser.save();
-      res.send("Success");
+      res.send("success");
     }
   });
 });
 
 app.post("/login", passport.authenticate("local"), (req, res) => {
-  res.send("success")
+  res.send("login success");
 });
 
 app.get("/user", (req, res) => {
   res.send(req.user);
+});
+
+app.get("/logout", function (req, res, next) {
+  req.logout(function (err) {
+    if (err) {
+      return next(err);
+    }
+    res.send("logout success");
+  });
 });
 
 app.listen(4000, () => {

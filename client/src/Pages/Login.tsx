@@ -19,13 +19,12 @@ export default function Login() {
       )
       .then(
         (res: AxiosResponse) => {
-          if (res.data === "success") {
-            console.log(res.data);
-            // window.location.href = "/";
+          if (res.data === "login success") {
+            window.location.href = "/";
           }
         },
         () => {
-          console.log("Failure");
+          console.log("failure");
         }
       );
   }
