@@ -6,7 +6,6 @@ import passportLocal from "passport-local";
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import bycrypt from "bcryptjs";
-import dotnet from "dotenv";
 import User from "./User";
 import {
   UserInterface,
@@ -71,6 +70,7 @@ passport.deserializeUser((id: string, cb) => {
     const userInformation = {
       username: user.username,
       isAdmin: user.isAdmin,
+      id: user._id,
     };
     cb(err, userInformation);
   });
@@ -111,19 +111,19 @@ function isAdminMiddleware(req: Request, res: Response, next: NextFunction) {
   if (user) {
     User.findOne(
       { username: user.username },
-      (err : Error, doc: DatabaseUserInterface) => {
+      (err: Error, doc: DatabaseUserInterface) => {
         if (err) {
           return next(err);
         }
         if (doc?.isAdmin) {
           next();
-        }else{
+        } else {
           res.send("You don't have right access privileges.");
         }
       }
     );
-  }else{
-    res.send("You must login.")
+  } else {
+    res.send("You must login.");
   }
 }
 
@@ -159,7 +159,16 @@ app.get("/users", isAdminMiddleware, (req, res, next) => {
     if (err) {
       return next(err);
     }
-    res.send(data);
+    const filteredUser: any = [];
+    data.forEach((item : any) => {
+      const userInformation = {
+        id: item._id,
+        username: item.username,
+        isAdmin: item.isAdmin,
+      };
+      filteredUser.push(userInformation);
+    });
+    res.send(filteredUser);
   });
 });
 
