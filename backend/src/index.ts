@@ -47,19 +47,22 @@ app.use(passport.session());
 
 //Passport
 passport.use(
-  new LocalStrategy((username : string, password : string, done) => {
-    User.findOne({ username: username }, (err : any, user: DatabaseUserInterface) => {
-      if (err) throw err;
-      if (!user) return done(null, false);
-      bycrypt.compare(password, user.password, (err, result : boolean) => {
+  new LocalStrategy((username: string, password: string, done) => {
+    User.findOne(
+      { username: username },
+      (err: any, user: DatabaseUserInterface) => {
         if (err) throw err;
-        if (result === true) {
-          return done(null, user);
-        } else {
-          return done(null, false);
-        }
-      });
-    });
+        if (!user) return done(null, false);
+        bycrypt.compare(password, user.password, (err, result: boolean) => {
+          if (err) throw err;
+          if (result === true) {
+            return done(null, user);
+          } else {
+            return done(null, false);
+          }
+        });
+      }
+    );
   })
 );
 
@@ -69,7 +72,7 @@ passport.serializeUser((user: DatabaseUserInterface, cb) => {
 
 passport.deserializeUser((id: string, cb) => {
   User.findOne({ _id: id }, (err: any, user: DatabaseUserInterface) => {
-    const userInformation : UserInterface= {
+    const userInformation: UserInterface = {
       username: user.username,
       isAdmin: user.isAdmin,
       id: user._id,
@@ -79,7 +82,7 @@ passport.deserializeUser((id: string, cb) => {
 });
 
 // Routes
-app.post("/register", async (req : Request, res : Response) => {
+app.post("/register", async (req: Request, res: Response) => {
   // username, password validation
   const { username, password } = req?.body;
   if (
@@ -147,7 +150,7 @@ app.get("/logout", function (req, res, next) {
 });
 
 app.post("/delete", isAdminMiddleware, (req, res, next) => {
-  const { id } = req.body;
+  const { id } = req?.body;
   User.findByIdAndDelete(id, (err: Error) => {
     if (err) {
       return next(err);
@@ -162,7 +165,7 @@ app.get("/users", isAdminMiddleware, (req, res, next) => {
       return next(err);
     }
     const filteredUser: UserInterface[] = [];
-    data.forEach((item : DatabaseUserInterface) => {
+    data.forEach((item: DatabaseUserInterface) => {
       const userInformation = {
         id: item._id,
         username: item.username,
