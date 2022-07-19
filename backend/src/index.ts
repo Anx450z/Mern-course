@@ -111,17 +111,20 @@ function isAdminMiddleware(req: Request, res: Response, next: NextFunction) {
   if (user) {
     User.findOne(
       { username: user.username },
-      (err: Error, doc: UserInterface) => {
+      (err : Error, doc: DatabaseUserInterface) => {
         if (err) {
           return next(err);
         }
         if (doc?.isAdmin) {
           next();
+        }else{
+          res.send("You don't have right access privileges.");
         }
       }
     );
+  }else{
+    res.send("You must login.")
   }
-  res.send("You don't have right access privileges");
 }
 
 app.post("/login", passport.authenticate("local"), (req, res) => {
