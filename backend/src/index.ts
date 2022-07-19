@@ -11,11 +11,13 @@ import {
   UserInterface,
   DatabaseUserInterface,
 } from "./Interface/UserInterface";
+import dotenv from "dotenv";
 
 const LocalStrategy = passportLocal.Strategy;
 
+dotenv.config();
 mongoose.connect(
-  "mongodb+srv://ankur:ankur@cluster0.pwl0a.mongodb.net/?retryWrites=true&w=majority",
+  `${process.env.PART1}${process.env.USERNAME}:${process.env.PASSWORD}${process.env.PART2}`,
   {
     // useCreateIndex: true, // not working
     autoIndex: true,
@@ -28,7 +30,7 @@ mongoose.connect(
   }
 );
 
-// Middleware
+// Middleware using Express
 const app = express();
 app.use(express.json());
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
@@ -45,11 +47,11 @@ app.use(passport.session());
 
 //Passport
 passport.use(
-  new LocalStrategy((username, password, done) => {
-    User.findOne({ username: username }, (err: any, user: any) => {
+  new LocalStrategy((username : string, password : string, done) => {
+    User.findOne({ username: username }, (err : any, user: DatabaseUserInterface) => {
       if (err) throw err;
       if (!user) return done(null, false);
-      bycrypt.compare(password, user.password, (err, result) => {
+      bycrypt.compare(password, user.password, (err, result : boolean) => {
         if (err) throw err;
         if (result === true) {
           return done(null, user);
@@ -61,13 +63,13 @@ passport.use(
   })
 );
 
-passport.serializeUser((user: any, cb) => {
-  cb(null, user.id);
+passport.serializeUser((user: DatabaseUserInterface, cb) => {
+  cb(null, user._id);
 });
 
 passport.deserializeUser((id: string, cb) => {
-  User.findOne({ _id: id }, (err: any, user: any) => {
-    const userInformation = {
+  User.findOne({ _id: id }, (err: any, user: DatabaseUserInterface) => {
+    const userInformation : UserInterface= {
       username: user.username,
       isAdmin: user.isAdmin,
       id: user._id,
@@ -77,7 +79,7 @@ passport.deserializeUser((id: string, cb) => {
 });
 
 // Routes
-app.post("/register", async (req, res) => {
+app.post("/register", async (req : Request, res : Response) => {
   // username, password validation
   const { username, password } = req?.body;
   if (
@@ -159,8 +161,8 @@ app.get("/users", isAdminMiddleware, (req, res, next) => {
     if (err) {
       return next(err);
     }
-    const filteredUser: any = [];
-    data.forEach((item : any) => {
+    const filteredUser: UserInterface[] = [];
+    data.forEach((item : DatabaseUserInterface) => {
       const userInformation = {
         id: item._id,
         username: item.username,
