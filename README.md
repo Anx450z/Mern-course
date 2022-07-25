@@ -35,7 +35,7 @@
   <br>
   useUnifiedTopology: true
 
-  `these are depricated`
+  `these are deprecated`
 
 * use these instead
   autoIndex: true

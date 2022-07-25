@@ -1,21 +1,18 @@
-import mongoose from "mongoose";
-import express, { NextFunction, Request, Response } from "express";
-import cors from "cors";
-import passport from "passport";
-import passportLocal from "passport-local";
-import cookieParser from "cookie-parser";
-import session from "express-session";
-import bycrypt from "bcryptjs";
-import User from "./User";
-import {
-  UserInterface,
-  DatabaseUserInterface,
-} from "./Interface/UserInterface";
-import dotenv from "dotenv";
+import mongoose from 'mongoose'
+import express, { NextFunction, Request, Response } from 'express'
+import cors from 'cors'
+import passport from 'passport'
+import passportLocal from 'passport-local'
+import cookieParser from 'cookie-parser'
+import session from 'express-session'
+import bycrypt from 'bcryptjs'
+import User from './User'
+import { UserInterface, DatabaseUserInterface } from './Interface/UserInterface'
+import dotenv from 'dotenv'
 
-const LocalStrategy = passportLocal.Strategy;
+const LocalStrategy = passportLocal.Strategy
 
-dotenv.config();
+dotenv.config()
 mongoose.connect(
   `${process.env.PART1}${process.env.USERNAME}:${process.env.PASSWORD}${process.env.PART2}`,
   {
@@ -25,25 +22,25 @@ mongoose.connect(
     // useUnifiedTopology: true, // not working
   },
   (err: Error) => {
-    if (err) throw err;
-    console.log("Connected to DB");
+    if (err) throw err
+    console.log('Connected to DB')
   }
-);
+)
 
 // Middleware using Express
-const app = express();
-app.use(express.json());
-app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+const app = express()
+app.use(express.json())
+app.use(cors({ origin: 'http://localhost:3000', credentials: true }))
 app.use(
   session({
-    secret: "ankur",
+    secret: 'ankur',
     resave: true,
     saveUninitialized: true,
   })
-);
-app.use(cookieParser());
-app.use(passport.initialize());
-app.use(passport.session());
+)
+app.use(cookieParser())
+app.use(passport.initialize())
+app.use(passport.session())
 
 //Passport
 passport.use(
@@ -51,24 +48,24 @@ passport.use(
     User.findOne(
       { username: username },
       (err: any, user: DatabaseUserInterface) => {
-        if (err) throw err;
-        if (!user) return done(null, false);
+        if (err) throw err
+        if (!user) return done(null, false)
         bycrypt.compare(password, user.password, (err, result: boolean) => {
-          if (err) throw err;
+          if (err) throw err
           if (result === true) {
-            return done(null, user);
+            return done(null, user)
           } else {
-            return done(null, false);
+            return done(null, false)
           }
-        });
+        })
       }
-    );
+    )
   })
-);
+)
 
 passport.serializeUser((user: DatabaseUserInterface, cb) => {
-  cb(null, user._id);
-});
+  cb(null, user._id)
+})
 
 passport.deserializeUser((id: string, cb) => {
   User.findOne({ _id: id }, (err: any, user: DatabaseUserInterface) => {
@@ -76,107 +73,107 @@ passport.deserializeUser((id: string, cb) => {
       username: user.username,
       isAdmin: user.isAdmin,
       id: user._id,
-    };
-    cb(err, userInformation);
-  });
-});
+    }
+    cb(err, userInformation)
+  })
+})
 
 // Routes
-app.post("/register", async (req: Request, res: Response) => {
+app.post('/register', async (req: Request, res: Response) => {
   // username, password validation
-  const { username, password } = req?.body;
+  const { username, password } = req?.body
   if (
     !username ||
     !password ||
-    typeof username !== "string" ||
-    typeof password !== "string"
+    typeof username !== 'string' ||
+    typeof password !== 'string'
   ) {
-    res.send("Improper Values");
-    return;
+    res.send('Improper Values')
+    return
   }
   // Check user already exist else success
   User.findOne({ username }, async (err: Error, doc: DatabaseUserInterface) => {
-    if (err) throw err;
-    if (doc) res.send("user Already Exists");
+    if (err) throw err
+    if (doc) res.send('user Already Exists')
     if (!doc) {
-      const hashedPassword = await bycrypt.hash(req.body.password, 10);
+      const hashedPassword = await bycrypt.hash(req.body.password, 10)
       const newUser = new User({
         username: req.body.username,
         password: hashedPassword,
-      });
-      await newUser.save();
-      res.send("success");
+      })
+      await newUser.save()
+      res.send('success')
     }
-  });
-});
+  })
+})
 
 // Middleware for route protection
 function isAdminMiddleware(req: Request, res: Response, next: NextFunction) {
-  const { user }: any = req;
+  const { user }: any = req
   if (user) {
     User.findOne(
       { username: user.username },
       (err: Error, doc: DatabaseUserInterface) => {
         if (err) {
-          return next(err);
+          return next(err)
         }
         if (doc?.isAdmin) {
-          next();
+          next()
         } else {
-          res.send("You don't have right access privileges.");
+          res.send("You don't have right access privileges.")
         }
       }
-    );
+    )
   } else {
-    res.send("You must login.");
+    res.send('You must login.')
   }
 }
 
-app.post("/login", passport.authenticate("local"), (req, res) => {
-  res.send("login success");
-});
+app.post('/login', passport.authenticate('local'), (req, res) => {
+  res.send('login success')
+})
 
-app.get("/user", (req, res) => {
-  res.send(req.user);
-});
+app.get('/user', (req, res) => {
+  res.send(req.user)
+})
 
-app.get("/logout", function (req, res, next) {
+app.get('/logout', function (req, res, next) {
   req.logout(function (err) {
     if (err) {
-      return next(err);
+      return next(err)
     }
-    res.send("logout success");
-  });
-});
+    res.send('logout success')
+  })
+})
 
-app.post("/delete", isAdminMiddleware, (req, res, next) => {
-  const { id } = req?.body;
+app.post('/delete', isAdminMiddleware, (req, res, next) => {
+  const { id } = req?.body
   User.findByIdAndDelete(id, (err: Error) => {
     if (err) {
-      return next(err);
+      return next(err)
     }
-    res.send("success");
-  });
-});
+    res.send('success')
+  })
+})
 
-app.get("/users", isAdminMiddleware, (req, res, next) => {
+app.get('/users', isAdminMiddleware, (req, res, next) => {
   User.find({}, (err: Error, data: DatabaseUserInterface[]) => {
     if (err) {
-      return next(err);
+      return next(err)
     }
-    const filteredUser: UserInterface[] = [];
+    const filteredUser: UserInterface[] = []
     data.forEach((item: DatabaseUserInterface) => {
       const userInformation = {
         id: item._id,
         username: item.username,
         isAdmin: item.isAdmin,
-      };
-      filteredUser.push(userInformation);
-    });
-    res.send(filteredUser);
-  });
-});
+      }
+      filteredUser.push(userInformation)
+    })
+    res.send(filteredUser)
+  })
+})
 
 app.listen(4000, () => {
-  console.log("Server started");
-});
+  console.log('Server started')
+})
