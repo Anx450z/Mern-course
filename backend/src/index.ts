@@ -9,7 +9,6 @@ import { User } from './entities/User'
 import { UserInterface, DatabaseUserInterface } from './Interface/UserInterface'
 import dotenv from 'dotenv'
 import { dataSource } from './dataSource'
-import { UserController } from './controller/userController'
 import { isAdminMiddleware } from './middleware/adminMiddleware'
 
 const LocalStrategy = passportLocal.Strategy
@@ -48,7 +47,7 @@ app.use(cookieParser())
 app.use(passport.initialize())
 app.use(passport.session())
 
-main()
+
 
 //Passport
 passport.use(
@@ -94,7 +93,7 @@ passport.deserializeUser(async (id: number, cb: any) => {
 })
 
 // Routes
-app.post('/register', UserController.userRegistration)
+// app.post('/register', UserController.userRegistration)
 
 // Middleware for route protection
 
@@ -103,18 +102,18 @@ app.post('/login', passport.authenticate('local'), (req, res) => {
   res.send('login success')
 })
 
-app.get('/user', (req, res) => {
-  res.send(req.user)
-})
+// app.get('/user', (req, res) => {
+//   res.send(req.user)
+// })
 
-app.get('/logout', function (req, res, next) {
-  req.logout(function (err) {
-    if (err) {
-      return next(err)
-    }
-    res.send('logout success')
-  })
-})
+// app.get('/logout', function (req, res, next) {
+//   req.logout(function (err) {
+//     if (err) {
+//       return next(err)
+//     }
+//     res.send('logout success')
+//   })
+// })
 
 // app.post('/delete', isAdminMiddleware, (req, res, next) => {
 //   const { id } = req?.body
@@ -144,6 +143,8 @@ app.get('/logout', function (req, res, next) {
 //   })
 // })
 
-app.listen(4000, () => {
-  console.log('Server started')
-})
+// app.listen(4000, () => {
+//   console.log('Server started')
+// })
+
+main()
